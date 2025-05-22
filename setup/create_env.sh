@@ -23,9 +23,18 @@ current_date=$(date +%y%m%d)
 # Create environment name with the current date
 env_prefix=lingua_$current_date
 
-# Create the conda environment
+# 使用您系统上的 conda 路径
+CONDA_PATH="/fs-computility/mllm1/limo/miniconda3"
 
-source $CONDA_ROOT/etc/profile.d/conda.sh
+# 初始化 conda
+if [ -f "$CONDA_PATH/etc/profile.d/conda.sh" ]; then
+    source "$CONDA_PATH/etc/profile.d/conda.sh"
+else
+    echo "无法找到 conda 初始化脚本: $CONDA_PATH/etc/profile.d/conda.sh"
+    echo "请检查 conda 安装路径是否正确"
+    exit 1
+fi
+
 conda create -n $env_prefix python=3.11 -y -c anaconda
 conda activate $env_prefix
 

@@ -76,7 +76,7 @@ def setup_terashuf(work_dir):
     return terashuf_dir
 
 
-def main(dataset, memory, data_dir, seed=42, nchunks=32):
+def main(dataset, memory, data_dir, seed=42, nchunks=32, skip_download=False, output_suffix=""):
     # Configuration
     repo_id = {
         "fineweb_edu": "HuggingFaceFW/fineweb-edu",
@@ -85,7 +85,7 @@ def main(dataset, memory, data_dir, seed=42, nchunks=32):
         "dclm_baseline_1.0_10prct": "mlfoundations/dclm-baseline-1.0",
     }[dataset]
     src_dir = f"{data_dir}/{dataset}"
-    out_dir = f"{src_dir}_shuffled"
+    out_dir = f"{src_dir}_shuffled{output_suffix}"
     os.makedirs(out_dir, exist_ok=True)
     work_dir = src_dir  # Directory of this Python file
     prefix = f"{dataset}.chunk."
@@ -105,7 +105,7 @@ def main(dataset, memory, data_dir, seed=42, nchunks=32):
         "fineweb_edu": None,
         "fineweb_edu_10bt": "sample/10BT/*",
         "dclm_baseline_1.0": "*.jsonl.zst",
-        "dclm_baseline_1.0_10prct": "global-shard_01_of_10/*.jsonl.zst",
+        "dclm_baseline_1.0_10prct": "global-shard_01_of_10/local-shard_*_of_10/*.jsonl.zst",
     }[dataset]
     suffix = ".jsonl"
     k_validation = 10000  # Number of lines to take from each chunk for validation
@@ -113,8 +113,9 @@ def main(dataset, memory, data_dir, seed=42, nchunks=32):
     # Setup terashuf
     terashuf_dir = setup_terashuf(work_dir)
 
-    # Download dataset
-    download_dataset(repo_id, src_dir, allow_patterns)
+    # Download dataset if not skipped
+    if not skip_download:
+        download_dataset(repo_id, src_dir, allow_patterns)
 
     if "fineweb" in dataset:
         parquet_to_jsonl(dataset, work_dir, src_dir, src_dir)
@@ -125,11 +126,18 @@ def main(dataset, memory, data_dir, seed=42, nchunks=32):
 
     # Run the original shuffling and splitting command
     terashuf_executable = os.path.join(terashuf_dir, "terashuf")
+    
+    # 修改这里的查找路径，让它能找到嵌套在local-shard目录中的文件
+    find_pattern = {
+        "dclm_baseline_1.0": f"{src_dir} -type f -name '*{orig_extension}'",
+        "dclm_baseline_1.0_10prct": f"/fs-computility/llm/shared/limo/data/dclm_baseline_1.0/global-shard_01_of_10 -type f -name '*{orig_extension}'"
+    }.get(dataset, f"{src_dir} -type f -name '*{orig_extension}'")
+    
     run_command(
+        f"trap 'echo \"Caught signal 13, exiting with code 1\"; exit 1' SIGPIPE; "
         f"ulimit -n 100000 && "
-        f"find {src_dir} -type f -name '*{orig_extension}' -print0 | xargs -0 -I {{}} sh -c '{cat_command}' | {terashuf_executable} | "
+        f"find {find_pattern} -print0 | xargs -0 -I {{}} sh -c '{cat_command}' | {terashuf_executable} | "
         f"split -n r/{nchunks} -d --suffix-length 2 --additional-suffix {suffix} - {out_dir}/{prefix}"
-        "; trap 'echo \"Caught signal 13, exiting with code 1\"; exit 1' SIGPIPE;"
     )
 
     # Create validation set and remove lines from chunks
@@ -149,7 +157,9 @@ if __name__ == "__main__":
     parser.add_argument("--data_dir", type=str, default="data")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--nchunks", type=int, default=32)
+    parser.add_argument("--skip_download", action="store_true", help="Skip downloading data")
+    parser.add_argument("--output_suffix", type=str, default="", help="Suffix to add to the output directory name")
 
     args = parser.parse_args()
 
-    main(args.dataset, args.memory, args.data_dir, args.seed, args.nchunks)
+    main(args.dataset, args.memory, args.data_dir, args.seed, args.nchunks, args.skip_download, args.output_suffix)
