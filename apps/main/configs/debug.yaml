@@ -1,9 +1,10 @@
 # Template config, need to change dump_dir, data.root_dir and data.tokenizer.path
 
-# dump_dir: !!CHANGETHIS!!
+dump_dir: dump/debug
 name: "debug"
-steps: 1000
-probe_freq: 100
+steps: 5000000
+
+probe_freq: null
 seed: 777
 optim:
     lr: 3e-4
@@ -23,32 +24,40 @@ model:
     dim: 1024
     n_layers: 8
     n_heads: 8
+# Model size: 308,626,432 total parameters
+# 0.31B参数
 
 data:
-    root_dir: data/shuffled
+    root_dir: /fs-computility/llm/shared/limo/data/
     sources:
-        dclm_baseline_1.0: 1.0
+        dclm_baseline_1.0_10prct_shuffled_8chunks: 1.0
     batch_size: 32
     prefetch_size: 64
     seq_len: 2048
     n_views: 2
     load_async: true
     tokenizer:
-        name: bytes
+        name: tiktoken
+        path: /fs-computility/llm/shared/llmeval/share_tiktoken/cl100k_base.tiktoken
 
 profiling:
     run: true
 
 checkpoint:
     dump:
-        every: 100
-        keep: 1
+        every: 2500
+        keep: 3
     eval:
-        every: 100
-        keep: 1
+        every: 5000
+        keep: -1
 
 logging:
     freq: 10
+    wandb:
+        project: "Lingua"  # 项目名称
+        name: "Mo Li"  # 会被 args.name 覆盖
+        entity: "molithu"  # 您的 wandb 用户名或团队名
+        notes: "Evaluation of Lingua Models"
 
 eval:
     generator:
@@ -58,9 +67,9 @@ eval:
         top_p: 0.95
     harness:
         tasks:
-            - hellaswag
-            - piqa
-            - task: nq_open
-              num_fewshot: 5
+            - hellaswag #故事续写 
+            # - piqa #Physical Interaction: Question Answering） 实际生活中的一些物理常识 从两个候选答案中选择label
+            # - task: nq_open
+            #   num_fewshot: 5
     validation:
-        max_steps: 100
+        max_steps: 1000
