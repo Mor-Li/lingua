@@ -3,3 +3,11 @@
 *.ipynb
 slurm-*.out
 wandb
+data
+dump
+*.log
+tmp
+debug
+.gradio
+hf_models/
+log*

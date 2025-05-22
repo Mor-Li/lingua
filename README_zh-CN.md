@@ -49,11 +49,11 @@ When using `stool`, if a job crashes, it can be relaunched using sbatch:
 ```bash
 sbatch path/to/dump_dir/submit.slurm
 ```
-## Training Results 
+## 训练结果
 
-We get very strong performance on many downstream tasks and match the performance of [DCLM baseline 1.0](https://arxiv.org/abs/2406.11794).
+我们在许多下游任务中获得了非常强的性能，并匹配了[DCLM baseline 1.0](https://arxiv.org/abs/2406.11794)的性能。
 
-### 1B models on 60B DCLM tokens
+### 1B模型在60B DCLM tokens上的表现
 | name           | arc_challenge | arc_easy | boolq |  copa | hellaswag |  obqa |  piqa |  siqa | winogrande |  nq  |  tqa  |
 |----------------|:-------------:|:--------:|:-----:|:-----:|:---------:|:-----:|:-----:|:-----:|:----------:|:----:|:-----:|
 | Transformer 1B |     36.48     |   62.83  | 62.57 | 79.00 |   63.62   | 37.40 | 75.14 | 45.19 |    61.64   | 8.75 | 26.31 |
@@ -110,34 +110,34 @@ Meta Lingua is structured as follows:
    ┗ 📂plots
 ```
 
-The `lingua` folder contains some essential and reusable components, while the `apps` folder contains scripts that put those components together. For instance the main training loop is in `apps/main`. We highly encourage you to use that as a template and modify it however you please to suit your experiments. 
+`lingua`文件夹包含一些基本且可重用的组件，而`apps`文件夹包含将这些组件组合在一起的脚本。例如，主要的训练循环位于`apps/main`中。我们强烈建议您将其作为模板，并根据您的实验需求随意修改。
 
-Nothing is sacred in Meta Lingua. We've specifically tried to make it as easily modifiable as possible! So feel free to branch out and modify anything. 
+在Meta Lingua中没有什么是不可改变的。我们特意尝试使其尽可能易于修改！所以请随意分支并修改任何内容。
 
-Here's a quick description of the most important files and features:
+以下是最重要文件和功能的简要描述：
 
-- **`transformer.py`** : Defines model architecture. This is pure PyTorch `nn.Module` ! Nothing fancy here. 
-- **`distributed.py`** : Handles distributing the model on multiple GPUs. This is done through `parallelize_module` function which wraps your vanilla `nn.Module` and applies nearly any combination of Data Parallel, Fully Sharded Data Parallel, Model Parallelism, `torch.compile`, activation checkpointing and `float8`. 
-- **`data.py`** : Dataloader for LLM pretraining.
+- **`transformer.py`**：定义模型架构。这是纯PyTorch `nn.Module`！这里没有什么花哨的东西。
+- **`distributed.py`**：处理在多个GPU上分布模型。这是通过`parallelize_module`函数完成的，该函数包装您的普通`nn.Module`并应用几乎任何数据并行、完全分片数据并行、模型并行、`torch.compile`、激活检查点和`float8`的组合。
+- **`data.py`**：LLM预训练的数据加载器。
 
 <p align="center">  
  <img src="dataloader.png" width="40%"/>
 </p>
 
-- **`profiling.py`** : Small wrapper around xformers' profiler which provides automatic MFU and HFU calculation and dumps profile traces in profiling folder in your dump directory. It also has memory profiling trace. 
-- **`checkpoint.py`** : Manages model checkpoints. It saves model in checkpoints folder in your dump dir in .distcp format which is the new PyTorch distributed saving method. This format allows to reload the model with a different number of GPUs and with a different sharding. You can also convert those into normal PyTorch checkpoints with `torch.distributed.checkpoint.format_utils.dcp_to_torch_save` and the other way around `torch_save_to_dcp`.
-- **`args.py`** : Utilities to work with configs. 
+- **`profiling.py`**：xformers分析器的小包装器，提供自动MFU和HFU计算，并在转储目录的分析文件夹中转储分析跟踪。它还具有内存分析跟踪。
+- **`checkpoint.py`**：管理模型检查点。它将模型保存在转储目录的checkpoints文件夹中，采用.distcp格式，这是新的PyTorch分布式保存方法。此格式允许使用不同数量的GPU和不同的分片重新加载模型。您还可以使用`torch.distributed.checkpoint.format_utils.dcp_to_torch_save`将它们转换为普通PyTorch检查点，反之亦然，使用`torch_save_to_dcp`。
+- **`args.py`**：用于处理配置的实用工具。
 
-## Configuration
+## 配置
 
-Most components need configuration and we chose to use data classes to represent these configuration objects. `args.py` helps with converting between `config.yaml` and config dictionaries into the respective data classes. 
+大多数组件需要配置，我们选择使用数据类来表示这些配置对象。`args.py`帮助在`config.yaml`和配置字典之间进行转换，分别转换为各自的数据类。
 
-So for examples the `TrainArgs` in `apps/main/train.py` has a `LMTransformerArgs`, `OptimArgs`, etc ... as children. 
+例如，`apps/main/train.py`中的`TrainArgs`具有`LMTransformerArgs`、`OptimArgs`等子类。
 
-Here is an example configuration file that will be converted to `TrainArgs`:
+以下是一个将转换为`TrainArgs`的示例配置文件：
 
 ```yaml
-# This is where Meta Lingua will store anything related to the experiment. 
+# 这是Meta Lingua将存储与实验相关的任何内容的位置。
 dump_dir: /path/to/dumpdir
 name: "debug"
 steps: 1000
@@ -178,9 +178,9 @@ data:
 
 ### Command line arguments
 
-The command line interface in all scripts (`train.py`, `eval.py`, `stool.py`) uses [OmegaConf](https://omegaconf.readthedocs.io/en/2.3_branch/usage.html#from-command-line-arguments)
-This accepts arguments as a dot list
-So if the dataclass looks like
+所有脚本（`train.py`、`eval.py`、`stool.py`）中的命令行接口使用[OmegaConf](https://omegaconf.readthedocs.io/en/2.3_branch/usage.html#from-command-line-arguments)
+它接受点列表形式的参数
+如果数据类如下所示
 ```python
 @dataclass
 class DummyArgs:
@@ -196,10 +196,10 @@ class LMTransformerArgs:
 Then you can pass `model.dim = 32` to change values in `LMTransformerArgs`
 or just `name = tictac` for top level attributes.
 
-**`train.py`** simply takes as argument the path to a config file and will load that config. The behavior here is as follows:
-1. We instantiate `TrainArgs` with its default values
-2. We override those default values with the ones in the provided config file
-3. We override the result with the additional arguments provided through command line
+**`train.py`** 简单地接受作为参数的配置文件路径，并加载该配置。行为如下：
+1. 我们用默认值实例化`TrainArgs`
+2. 我们用提供的配置文件中的值覆盖那些默认值
+3. 我们用通过命令行提供的额外参数覆盖结果
 
 If we take the `DummyArgs` example above, calling `train.py` with `train.py config=debug.yaml model.dim=64 name=tictac` 
 where `debug.yaml` contains 
@@ -207,46 +207,46 @@ where `debug.yaml` contains
 model:
     n_layers: 24
 ```
-will launch training with the config 
+将启动训练，使用配置
 ```python
 DummyArgs(name="tictac", LMTransformerArgs(dim=64, n_layers=24))
 ```
 
-### Launching with SLURM
+### 使用SLURM启动
 
-Since we want to do distributed training, we need `train.py` to run N times (with N being the number of GPUs)
+由于我们想要进行分布式训练，我们需要`train.py`运行N次（N是GPU的数量）
 
-The easiest way to do this is through SLURM. And in order to make that simpler, we provide `lingua/stool.py` which is a simple python script that 
-1. Saves the provided config to `dump_dir`
-2. Copies your current code to `dump_dir` in order to back it up 
-3. Creates an sbatch file `submit.slurm` which is then used to launch the job with the provided config. 
+最简单的方法是通过SLURM。为了简化这一点，我们提供了`lingua/stool.py`，这是一个简单的python脚本，
+1. 将提供的配置保存到`dump_dir`
+2. 将当前代码复制到`dump_dir`以备份
+3. 创建一个sbatch文件`submit.slurm`，然后使用提供的配置启动任务。
 
-It can either be used through command line 
+可以通过命令行使用它
 
 ```bash
 python -m lingua.stool config=apps/main/configs/debug.yaml nodes=1 account=fair_amaia_cw_codegen qos=lowest
 ```
 
-Or the `launch_job` function directly. This allows you for example to create many arbitrary configs (to sweep parameters, do ablations) in a jupyter notebook and launch jobs directly from there. 
+或者直接使用`launch_job`函数。这允许您例如在jupyter notebook中创建许多任意配置（用于参数扫描、进行消融），并直接从那里启动任务。
 
-Since the configuration file is copied to `dump_dir`, an easy way to iterate is to simply change the config file and launch the same command above. 
+由于配置文件被复制到`dump_dir`，一个简单的迭代方法是简单地更改配置文件并重新启动相同的命令。
 
-## Debugging
-In order to iterate quickly, it is preferable not to have to wait for a SLURM allocation every time. You can instead ask SLURM to allocate resources for you, then once they're allocated you can run multiple commands on that same allocation. 
+## 调试
+为了快速迭代，最好不必每次都等待SLURM分配。您可以改为请求SLURM为您分配资源，一旦分配完成，您可以在同一分配上运行多个命令。
 
-For example you can do :
+例如您可以这样做：
 
 ```bash
 salloc --nodes 2 --cpus-per-gpu 16 --mem 1760GB --gres=gpu:8 --exclusive --time=72:00:00
 ```
 
-Which will give you access to 2 nodes in your current terminal. Once the allocation is done, you will see some SLURM environement variables that were automatically added such as `$SLURM_JOB_ID` and others... This allows you for example to do in the same terminal
+这将为您在当前终端中提供2个节点。一旦分配完成，您将看到一些自动添加的SLURM环境变量，例如`$SLURM_JOB_ID`等。这允许您例如在同一终端中执行以下命令：
 
 ```bash
 srun -n 16 python -m apps.main.train config=apps/main/configs/debug.yaml
 ```
 
-Which will run the `python -m apps.main.train config=apps/main/configs/debug.yaml` command on each of the 16 GPUs. If this crashes or ends you can just relaunch `srun` again because the nodes are already allocated to you and you don't have to wait for SLURM to give you the resources again.
+这将运行`python -m apps.main.train config=apps/main/configs/debug.yaml`命令在每个16个GPU上。如果这个崩溃或结束，您可以简单地重新启动`srun`，因为节点已经分配给您，您不必等待SLURM再次为您提供资源。
 
 This will also show you the outputs of all those commands in the same terminal which might become cumbersome. 
 
@@ -256,9 +256,9 @@ Instead you can use `stool` directly to configure logs to be separated into diff
 python -m lingua.stool config=apps/main/configs/debug.yaml nodes=2 launcher=bash dirs_exists_ok=true
 ```
 
-Notice that we added **`launcher=bash`** which basically means that the generated `submit.slurm` will simply be executed instead of submitting it through `sbatch`. The `submit.slurm` has an `srun` command also so this is very similar to the above `srun` command. We also add **`dirs_exists_ok=true`** to tell `stool` that it is okay to override things in an existing folder (code, config, etc)
+请注意，我们添加了 **`launcher=bash`**，这基本上意味着生成的 `submit.slurm` 将直接执行，而不是通过 `sbatch` 提交。`submit.slurm` 中也有一个 `srun` 命令，所以这与上面的 `srun` 命令非常相似。我们还添加了 **`dirs_exists_ok=true`** 来告诉 `stool` 可以覆盖现有文件夹中的内容（代码、配置等）。
 
-If you want to use `pdb` to step through your code, you should use `-n 1` to run only on 1 GPU. 
+如果您想使用 `pdb` 逐步调试代码，应该使用 `-n 1` 只在1个GPU上运行。
 
 ## Evaluations
 
@@ -318,17 +318,17 @@ python -m lingua.stool script=apps.main.eval config=apps/main/configs/eval.yaml 
 
 ## Related repositories
 
-Here we highlight some related work that is complementary to this one. Most important being [torchtitan](https://github.com/pytorch/torchtitan), [torchtune](https://github.com/pytorch/torchtune) and [fairseq2](https://github.com/facebookresearch/fairseq2). 
+在这里，我们强调一些与本项目互补的相关工作。其中最重要的是[torchtitan](https://github.com/pytorch/torchtitan)和[torchtune](https://github.com/pytorch/torchtune)。
 
-Lingua is designed for researchers who want to experiment with new ideas for LLM pretraining and get quick feedback on both training/inference speed and downstream benchmarks. Our goal is to lower the barrier to entry for LLM research by providing a lightweight and focused codebase.
+Lingua专为那些想要尝试LLM预训练新想法并快速获得训练/推理速度和下游基准测试反馈的研究人员设计。我们的目标是通过提供轻量级和专注的代码库，降低LLM研究的入门门槛。
 
-We see torchtitan, torchtune, lingua and fairseq2 as complementary tools. Torchtitan is excellent for large-scale work because it features 3D parallelism and is likely to integrate the latest PyTorch distributed training features more quickly, thanks to its close ties to the PyTorch team. On the other hand, Torchtune excels at fine-tuning, especially when GPU resources are limited, by offering various fine-tuning strategies like LoRA, QLoRA, DPO, and PPO. Fairseq2 is a FAIR project for sequence modeling with multi-modal capabilities that provides various LLM training recipes, multi-GPU support with data and model parallelism, and efficient data processing for speech and multilingual content.
+我们将torchtitan、torchtune和lingua视为互补工具。Torchtitan非常适合大规模工作，因为它具有3D并行性，并且由于与PyTorch团队的紧密联系，可能会更快地集成最新的PyTorch分布式训练功能。另一方面，Torchtune在微调方面表现出色，特别是在GPU资源有限的情况下，它提供了各种微调策略，如LoRA、QLoRA、DPO和PPO。
 
-A typical workflow could look like this: you might first test a new idea in Lingua, then scale it up further with Torchtitan, and finally use Torchtune for instruction or preference fine-tuning.
+一个典型的工作流程可能是这样的：你可能首先在Lingua中测试新想法，然后使用Torchtitan进一步扩展，最后使用Torchtune进行指令或偏好微调。
 
-Although there's definitely some overlap among these codebases, we think it's valuable to have focused tools for different aspects of LLM work. For example, Torchtitan aims to showcase the latest distributed training features of PyTorch in a clean, minimal codebase, but for most research, you really don't need every feature PyTorch has to offer or the capability to scale to 100B parameters on 4096 GPUs. For instance, we think that FSDP + torch compile will cover 90% of all needs of a researcher. With lingua, we tried to ask "What's the minimal set of features needed to draw solid conclusions on the scalability of idea X?"
+虽然这些代码库之间肯定有一些重叠，但我们认为为LLM工作的不同方面提供专注的工具是有价值的。例如，Torchtitan旨在以干净、简洁的代码库展示PyTorch最新的分布式训练功能，但对于大多数研究来说，你真的不需要PyTorch提供的每一个功能，或者在4096个GPU上扩展到100B参数的能力。例如，我们认为FSDP + torch compile将满足研究人员90%的所有需求。使用lingua，我们尝试问："得出关于想法X可扩展性的可靠结论所需的最小功能集是什么？"
 
-We believe this targeted approach helps researchers make progress faster without the mental overhead of using many techniques that might not be needed.
+我们相信这种有针对性的方法可以帮助研究人员更快地取得进展，而不必承担使用许多可能不需要的技术的心理负担。
 
 ## Citation
 
@@ -342,4 +342,4 @@ We believe this targeted approach helps researchers make progress faster without
 ```
 ## License
 
-Meta Lingua is licensed under BSD-3-Clause license. Refer to the LICENSE file in the top level directory.
+Meta Lingua 使用 BSD-3-Clause 许可证。请参阅顶级目录中的 LICENSE 文件。
