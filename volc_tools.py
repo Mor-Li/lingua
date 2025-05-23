@@ -9,12 +9,7 @@ from loguru import logger  # 导入日志模块
 
 # 配置loguru日志记录器
 logger.remove()  # 移除默认处理器
-logger.add(
-    "volcano_deploy_{time}.log",  # 日志文件名
-    rotation="500 MB",  # 日志文件大小限制
-    level="INFO",  # 日志级别
-    format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"  # 日志格式
-)
+# 移除文件日志配置，只保留控制台输出
 logger.add(
     lambda msg: print(msg, flush=True),  # 也打印到控制台
     colorize=True,  # 颜色化输出
@@ -243,12 +238,7 @@ def main():
     
     # 设置日志级别
     logger.remove()  # 移除现有处理器
-    logger.add(
-        "volcano_deploy_{time}.log",  # 日志文件名
-        rotation="500 MB",  # 日志文件大小限制
-        level=args.log_level,  # 日志级别
-        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>"  # 日志格式
-    )
+    # 移除文件日志配置，只保留控制台输出
     logger.add(
         lambda msg: print(msg, flush=True),  # 也打印到控制台
         colorize=True,
