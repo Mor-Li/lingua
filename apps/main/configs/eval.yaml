@@ -1,6 +1,7 @@
 name: "debug_evals"
-# ckpt_dir: !!CHANGETHIS!!
-# dump_dir: !!CHANGETHIS!!
+ckpt_dir: "hf_models/model_400k"  # Set this to your checkpoint directory
+dump_dir: "eval_results"           # Set this to your desired output directory
+
 generator:
   max_tokens: 8192
   dtype: bf16
