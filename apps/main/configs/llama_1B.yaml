@@ -8,9 +8,9 @@
 # steps: 3,814,697  -> 1T tokens    (~60 days)
 # steps: 5,000,000  -> 1.31T tokens (~79 days) [current setting]
 
-dump_dir: dump/debug/llama_1B
-name: "llama_1B"
-steps: 381470
+dump_dir: dump/llama_1B_50B
+name: "llama_1B_50B"
+steps: 190735
 
 probe_freq: null
 seed: 777
