@@ -1,8 +1,16 @@
 # Template config for 1B parameter model
+# Training speed: 0.69B tokens/hour, 262,144 tokens/step, 1.37 seconds/step
+# 
+# Token amount estimates for different step values:
+# steps: 190,735    -> 50B tokens   (~3 days)
+# steps: 381,470    -> 100B tokens  (~6 days) 
+# steps: 1,907,349  -> 500B tokens  (~30 days)
+# steps: 3,814,697  -> 1T tokens    (~60 days)
+# steps: 5,000,000  -> 1.31T tokens (~79 days) [current setting]
 
 dump_dir: dump/debug/llama_1B
 name: "llama_1B"
-steps: 5000000
+steps: 381470
 
 probe_freq: null
 seed: 777
@@ -53,10 +61,10 @@ profiling:
 
 checkpoint:
     dump:
-        every: 2500
+        every: 25000
         keep: 3
     eval:
-        every: 5000
+        every: 5000000 # total step number 
         keep: -1
 
 logging:
@@ -80,7 +88,7 @@ eval:
             # - task: boolq
             #   dataset_kwargs:
             #     trust_remote_code: true
-            - baber/piqa
+            - piqa
             # - task: social_iqa
             #   dataset_kwargs:
             #     trust_remote_code: true
